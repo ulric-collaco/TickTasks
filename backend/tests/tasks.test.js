@@ -57,6 +57,43 @@ describe('Task API', () => {
     expect(renameRes.body.data.title).toBe('Updated title');
   });
 
+  test('rejects invalid task id', async () => {
+    const res = await request(app)
+      .patch('/tasks/not-a-number')
+      .send({ completed: true })
+      .expect(400);
+
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toBe('Task id must be a positive integer.');
+  });
+
+  test('rejects empty patch payload', async () => {
+    const createRes = await request(app)
+      .post('/tasks')
+      .send({ title: 'Task to update' })
+      .expect(201);
+
+    const taskId = createRes.body.data.id;
+    const res = await request(app)
+      .patch(`/tasks/${taskId}`)
+      .send({})
+      .expect(400);
+
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toBe('Provide completed and/or title.');
+  });
+
+  test('returns JSON for malformed body', async () => {
+    const res = await request(app)
+      .post('/tasks')
+      .set('Content-Type', 'application/json')
+      .send('{"title":')
+      .expect(400);
+
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toBe('Malformed JSON body.');
+  });
+
   test('persists tasks to disk and reloads after module refresh', async () => {
     await request(app)
       .post('/tasks')

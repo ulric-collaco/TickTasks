@@ -1,0 +1,17 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "yikes",
+      "completed": false,
+      "createdAt": "2026-04-09T15:06:51.230Z"
+    },
+    {
+      "id": 2,
+      "title": "woaj",
+      "completed": false,
+      "createdAt": "2026-04-09T15:06:52.901Z"
+    }
+  ],
+  "idCounter": 3
+}

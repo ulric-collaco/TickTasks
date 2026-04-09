@@ -285,3 +285,23 @@ body {
   outline: none;
   border-bottom: 2px solid #111;
 }
+
+.error {
+  border: 1px solid #E63329;
+  background: #FFF4F3;
+  color: #8F1F18;
+  padding: 0.8rem 1rem;
+  font-weight: 600;
+}
+
+.loading {
+  color: #666;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.empty-message {
+  color: #666;
+  font-size: 1rem;
+  padding: 1rem 0;
+}
