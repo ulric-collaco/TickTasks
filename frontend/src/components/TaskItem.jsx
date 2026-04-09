@@ -65,7 +65,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
           )}
 
           {/* Show priority dot */}
-          <span className="priority-pill" title={`Priority: ${priorityLabel}`}>
+          <span className={`priority-pill ${priority}`} title={`Priority: ${priorityLabel}`}>
             <span className={`priority-dot ${priority}`} aria-hidden="true" />
             {priorityLabel}
           </span>

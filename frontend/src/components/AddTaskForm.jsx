@@ -5,6 +5,7 @@ export default function AddTaskForm({ onAdd }) {
   const [priority, setPriority] = useState('medium')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const priorityOptions = ['low', 'medium', 'high']
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -36,18 +37,28 @@ export default function AddTaskForm({ onAdd }) {
         onChange={(e) => setTitle(e.target.value)}
         disabled={submitting}
       />
-      {/* Choose task priority */}
-      <select
-        className="priority-select"
-        value={priority}
-        onChange={(e) => setPriority(e.target.value)}
-        disabled={submitting}
-        aria-label="Select priority"
-      >
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-      </select>
+
+      <div className="priority-picker" role="radiogroup" aria-label="Task priority">
+        {/* Choose task priority */}
+        {priorityOptions.map((level) => {
+          const active = priority === level
+          return (
+            <button
+              key={level}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              className={`priority-option ${level}${active ? ' active' : ''}`}
+              onClick={() => setPriority(level)}
+              disabled={submitting}
+            >
+              <span className={`priority-dot ${level}`} aria-hidden="true" />
+              {level.charAt(0).toUpperCase() + level.slice(1)}
+            </button>
+          )
+        })}
+      </div>
+
       <button className="add-task-btn" type="submit" disabled={submitting}>
         {submitting ? 'Adding...' : 'Add'}
       </button>

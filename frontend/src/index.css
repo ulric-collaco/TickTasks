@@ -139,7 +139,7 @@ body {
 
 .add-task-form {
   display: grid;
-  grid-template-columns: 1fr 140px auto;
+  grid-template-columns: 1fr auto;
   gap: 0.75rem;
   align-items: stretch;
 }
@@ -153,7 +153,7 @@ body {
 .add-task-input {
   background: #fff;
   border: 1px solid #111111;
-  border-radius: 0;
+  border-radius: 10px;
   padding: 1rem 1.5rem;
   font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 1.1rem;
@@ -161,40 +161,89 @@ body {
   outline: none;
 }
 
-.priority-select {
-  background: #fff;
-  border: 1px solid #111111;
-  border-radius: 0;
-  padding: 0 0.75rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+.add-task-input:focus-visible {
+  border-color: #E63329;
+  box-shadow: 0 0 0 3px rgba(230, 51, 41, 0.18);
 }
 
 .add-task-btn {
   background: #111111;
   color: #FFFFFF;
   border: 1px solid #111111;
-  border-radius: 0;
+  border-radius: 10px;
   font-family: inherit;
   font-weight: 700;
   font-size: 1rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 0 2.5rem;
+  padding: 0 1.4rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .add-task-btn:hover:not(:disabled) {
   background: #E63329;
   border-color: #E63329;
+  transform: translateY(-1px);
 }
 
 .add-task-btn:disabled {
   opacity: 0.2;
   cursor: not-allowed;
+}
+
+.priority-picker {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.priority-option {
+  min-height: 44px;
+  border: 1px solid #d2d2d2;
+  border-radius: 999px;
+  background: #fff;
+  color: #333;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
+}
+
+.priority-option:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: #999;
+}
+
+.priority-option.active.low {
+  border-color: #2FA84F;
+  background: #effaf2;
+  color: #205f33;
+}
+
+.priority-option.active.medium {
+  border-color: #F1A208;
+  background: #fff7e8;
+  color: #8a5a00;
+}
+
+.priority-option.active.high {
+  border-color: #E63329;
+  background: #fff2f0;
+  color: #8f1f18;
+}
+
+.priority-option:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 2px;
 }
 
 .form-error {
@@ -205,34 +254,49 @@ body {
   margin-top: 0.5rem;
 }
 
+.action-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  border: 1px solid #dedede;
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  background: linear-gradient(180deg, #fff, #fcfcfc);
+}
+
 .complete-all-btn {
-  width: fit-content;
   border: none;
-  background: linear-gradient(120deg, #111111, #E63329);
+  background: linear-gradient(125deg, #111111, #202020 55%, #E63329 110%);
   color: #fff;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 0.65rem 1rem;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border-radius: 999px;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
 }
 
 .complete-all-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(17, 17, 17, 0.25);
 }
 
 .complete-all-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 .rename-hint {
-  color: #555;
-  font-size: 0.9rem;
+  color: #4e4e4e;
+  font-size: 0.86rem;
+  font-weight: 500;
   line-height: 1.4;
-  margin-top: -1rem;
+  margin: 0;
 }
 
 .task-list {
@@ -322,8 +386,30 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #444;
+  color: #333;
   white-space: nowrap;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  padding: 0.24rem 0.52rem;
+  background: #fafafa;
+}
+
+.priority-pill.low {
+  border-color: #b7e6c4;
+  background: #effaf2;
+  color: #205f33;
+}
+
+.priority-pill.medium {
+  border-color: #f7d286;
+  background: #fff7e8;
+  color: #8a5a00;
+}
+
+.priority-pill.high {
+  border-color: #f1b2ad;
+  background: #fff2f0;
+  color: #8f1f18;
 }
 
 .priority-dot {
