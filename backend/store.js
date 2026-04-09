@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const STORE_FILE = process.env.STORE_FILE || path.join(__dirname, 'tasks.json');
+const PRIORITY_SET = new Set(['low', 'medium', 'high']);
 
 let tasks = [];
 let idCounter = 1;
@@ -37,13 +38,14 @@ function loadFromDisk() {
 
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      tasks = parsed;
+      // Backfill missing priority
+      tasks = parsed.map(withPriority);
       idCounter = getNextId(tasks);
       persist();
       return;
     }
 
-    tasks = Array.isArray(parsed.tasks) ? parsed.tasks : [];
+    tasks = Array.isArray(parsed.tasks) ? parsed.tasks.map(withPriority) : [];
     idCounter = Number.isInteger(parsed.idCounter)
       ? parsed.idCounter
       : getNextId(tasks);
@@ -58,10 +60,23 @@ loadFromDisk();
 
 const getAll = () => tasks;
 
-const create = (title) => {
+function normalizePriority(value) {
+  if (typeof value !== 'string') return 'medium';
+  const normalized = value.trim().toLowerCase();
+  if (!PRIORITY_SET.has(normalized)) return 'medium';
+  return normalized;
+}
+
+function withPriority(task) {
+  return { ...task, priority: normalizePriority(task.priority) };
+}
+
+const create = (title, priority) => {
   const task = {
     id: idCounter++,
     title,
+    // Apply default priority
+    priority: normalizePriority(priority),
     completed: false,
     createdAt: new Date().toISOString(),
   };
@@ -75,6 +90,7 @@ const update = (id, fields) => {
   if (!task) return null;
   if (fields.completed !== undefined) task.completed = fields.completed;
   if (fields.title !== undefined) task.title = fields.title.trim();
+  if (fields.priority !== undefined) task.priority = normalizePriority(fields.priority);
   persist();
   return task;
 };

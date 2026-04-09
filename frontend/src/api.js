@@ -13,11 +13,11 @@ export async function getTasks() {
   return handleResponse(res);
 }
 
-export async function createTask(title) {
+export async function createTask(title, priority) {
   const res = await fetch(TASKS_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title }),
+    body: JSON.stringify({ title, priority }),
   });
   return handleResponse(res);
 }
@@ -36,6 +36,15 @@ export async function updateTaskTitle(id, title) {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title }),
+  });
+  return handleResponse(res);
+}
+
+export async function updateTaskPriority(id, priority) {
+  const res = await fetch(`${TASKS_URL}/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ priority }),
   });
   return handleResponse(res);
 }

@@ -33,8 +33,12 @@ Open [http://localhost:5173](http://localhost:5173)
 ## Features
 
 - Add, complete, and delete tasks
+- Complete-all action button for one-click finishing
+- Confetti celebration when every task is complete
 - Filter by all, active (incomplete), or completed status
 - Edit an existing task title inline
+- Priority levels (low/medium/high) with colored dot indicators
+- Local cache via browser localStorage
 - Persist tasks after refresh/server restart (file-backed store)
 
 ## API
@@ -42,8 +46,8 @@ Open [http://localhost:5173](http://localhost:5173)
 | Method | Path        | Body                      | Description    |
 |--------|-------------|---------------------------|----------------|
 | GET    | /tasks      | -                         | List all tasks |
-| POST   | /tasks      | `{ title: string }`       | Create task    |
-| PATCH  | /tasks/:id  | `{ completed?, title? }`  | Update task    |
+| POST   | /tasks      | `{ title: string, priority?: "low"|"medium"|"high" }` | Create task |
+| PATCH  | /tasks/:id  | `{ completed?, title?, priority? }` | Update task |
 | DELETE | /tasks/:id  | -                         | Delete task    |
 
 All responses: `{ success: boolean, data | error }`

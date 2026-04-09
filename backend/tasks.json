@@ -9,7 +9,7 @@
     {
       "id": 2,
       "title": "woaj",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-04-09T15:06:52.901Z"
     }
   ],

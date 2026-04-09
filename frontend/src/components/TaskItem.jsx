@@ -3,6 +3,8 @@ import { useState } from 'react'
 export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
   const [editing, setEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(task.title)
+  const priority = task.priority || 'medium'
+  const priorityLabel = `${priority.charAt(0).toUpperCase()}${priority.slice(1)}`
 
   const createdAt = new Date(task.createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -40,26 +42,34 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
       />
 
       <div className="task-body">
-        {editing ? (
-          <form className="edit-form" onSubmit={handleEditSubmit}>
-            <input
-              className="edit-input"
-              autoFocus
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              onKeyDown={handleEditKeyDown}
-              onBlur={handleEditSubmit}
-            />
-          </form>
-        ) : (
-          <span
-            className={`task-title${task.completed ? ' done' : ''}`}
-            onDoubleClick={handleDoubleClick}
-            title="Double-click to edit"
-          >
-            {task.title}
+        <div className="task-main">
+          {editing ? (
+            <form className="edit-form" onSubmit={handleEditSubmit}>
+              <input
+                className="edit-input"
+                autoFocus
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                onKeyDown={handleEditKeyDown}
+                onBlur={handleEditSubmit}
+              />
+            </form>
+          ) : (
+            <span
+              className={`task-title${task.completed ? ' done' : ''}`}
+              onDoubleClick={handleDoubleClick}
+              title="Double-click to edit"
+            >
+              {task.title}
+            </span>
+          )}
+
+          {/* Show priority dot */}
+          <span className="priority-pill" title={`Priority: ${priorityLabel}`}>
+            <span className={`priority-dot ${priority}`} aria-hidden="true" />
+            {priorityLabel}
           </span>
-        )}
+        </div>
         <span className="task-date">{createdAt}</span>
       </div>
 

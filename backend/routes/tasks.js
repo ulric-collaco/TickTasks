@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const store = require('../store');
+const ALLOWED_PRIORITIES = new Set(['low', 'medium', 'high']);
 
 const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
@@ -17,11 +18,17 @@ router.get('/', (req, res) => {
 
 // POST /tasks
 router.post('/', (req, res) => {
-  const { title } = req.body;
+  const { title, priority = 'medium' } = req.body || {};
   if (!title || typeof title !== 'string' || title.trim() === '') {
     return res.status(400).json({ success: false, error: 'Title must be a non-empty string.' });
   }
-  const task = store.create(title.trim());
+
+  // Validate priority value
+  if (typeof priority !== 'string' || !ALLOWED_PRIORITIES.has(priority.trim().toLowerCase())) {
+    return res.status(400).json({ success: false, error: 'priority must be low, medium, or high.' });
+  }
+
+  const task = store.create(title.trim(), priority);
   res.status(201).json({ success: true, data: task });
 });
 
@@ -33,15 +40,17 @@ router.patch('/:id', (req, res) => {
     return res.status(400).json({ success: false, error: 'Task id must be a positive integer.' });
   }
 
-  const hasCompleted = hasOwn(req.body, 'completed');
-  const hasTitle = hasOwn(req.body, 'title');
+  const body = req.body && typeof req.body === 'object' ? req.body : {};
+  const hasCompleted = hasOwn(body, 'completed');
+  const hasTitle = hasOwn(body, 'title');
+  const hasPriority = hasOwn(body, 'priority');
 
   // Require update fields
-  if (!hasCompleted && !hasTitle) {
-    return res.status(400).json({ success: false, error: 'Provide completed and/or title.' });
+  if (!hasCompleted && !hasTitle && !hasPriority) {
+    return res.status(400).json({ success: false, error: 'Provide completed, title, or priority.' });
   }
 
-  const { completed, title } = req.body;
+  const { completed, title, priority } = body;
 
   if (hasCompleted && typeof completed !== 'boolean') {
     return res.status(400).json({ success: false, error: 'completed must be a boolean.' });
@@ -49,10 +58,15 @@ router.patch('/:id', (req, res) => {
   if (hasTitle && (typeof title !== 'string' || title.trim() === '')) {
     return res.status(400).json({ success: false, error: 'title must be a non-empty string.' });
   }
+  // Validate priority value
+  if (hasPriority && (typeof priority !== 'string' || !ALLOWED_PRIORITIES.has(priority.trim().toLowerCase()))) {
+    return res.status(400).json({ success: false, error: 'priority must be low, medium, or high.' });
+  }
 
   const task = store.update(id, {
     completed: hasCompleted ? completed : undefined,
     title: hasTitle ? title : undefined,
+    priority: hasPriority ? priority : undefined,
   });
   if (!task) return res.status(404).json({ success: false, error: 'Task not found.' });
 

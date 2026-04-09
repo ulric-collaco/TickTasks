@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import confetti from 'canvas-confetti'
 import { getTasks, createTask, updateTask, updateTaskTitle, deleteTask } from './api'
 import AddTaskForm from './components/AddTaskForm'
 import FilterBar from './components/FilterBar'
@@ -6,7 +7,14 @@ import TaskList from './components/TaskList'
 import './index.css'
 
 export default function App() {
-  const [tasks, setTasks] = useState([])
+  const [tasks, setTasks] = useState(() => {
+    try {
+      const cached = localStorage.getItem('tasks-cache')
+      return cached ? JSON.parse(cached) : []
+    } catch {
+      return []
+    }
+  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('all')
@@ -14,6 +22,14 @@ export default function App() {
   useEffect(() => {
     loadTasks()
   }, [])
+
+  // Cache tasks locally
+  useEffect(() => localStorage.setItem('tasks-cache', JSON.stringify(tasks)), [tasks])
+
+  function fireCompletionConfetti() {
+    // Celebrate full completion
+    confetti({ particleCount: 140, spread: 90, origin: { y: 0.65 } })
+  }
 
   async function loadTasks() {
     try {
@@ -28,15 +44,39 @@ export default function App() {
     }
   }
 
-  async function handleAdd(title) {
-    const task = await createTask(title)
+  async function handleAdd(title, priority) {
+    const task = await createTask(title, priority)
     setTasks((prev) => [...prev, task])
   }
 
   async function handleToggle(id, completed) {
     try {
       const updated = await updateTask(id, completed)
-      setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)))
+      setTasks((prev) => {
+        const next = prev.map((t) => (t.id === updated.id ? updated : t))
+        if (next.length > 0 && next.every((t) => t.completed)) {
+          fireCompletionConfetti()
+        }
+        return next
+      })
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  async function handleCompleteAll() {
+    try {
+      setError('')
+      const remaining = tasks.filter((t) => !t.completed)
+      if (remaining.length === 0) return
+
+      const updatedList = await Promise.all(
+        remaining.map((task) => updateTask(task.id, true))
+      )
+      const updatedMap = new Map(updatedList.map((task) => [task.id, task]))
+      const nextTasks = tasks.map((task) => updatedMap.get(task.id) || task)
+      setTasks(nextTasks)
+      fireCompletionConfetti()
     } catch (err) {
       setError(err.message)
     }
@@ -97,6 +137,23 @@ export default function App() {
       {/* Right Column */}
       <main className="rightContent">
         <AddTaskForm onAdd={handleAdd} />
+
+        <div className="action-strip">
+          {/* Complete remaining tasks */}
+          <button
+            type="button"
+            className="complete-all-btn"
+            onClick={handleCompleteAll}
+            disabled={activeCount === 0}
+          >
+            {activeCount === 0 ? 'All tasks complete' : `Complete ${activeCount} remaining`}
+          </button>
+
+          {/* Show rename guidance */}
+          <p className="rename-hint">
+            Rename any task with double-click. Press Enter to save, or Esc to cancel.
+          </p>
+        </div>
         
         {error && <div className="error">{error}</div>}
 

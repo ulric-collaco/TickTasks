@@ -22,16 +22,27 @@ describe('Task API', () => {
   test('creates and returns tasks', async () => {
     const createRes = await request(app)
       .post('/tasks')
-      .send({ title: 'Write tests' })
+      .send({ title: 'Write tests', priority: 'high' })
       .expect(201);
 
     expect(createRes.body.success).toBe(true);
     expect(createRes.body.data.title).toBe('Write tests');
+    expect(createRes.body.data.priority).toBe('high');
 
     const listRes = await request(app).get('/tasks').expect(200);
     expect(listRes.body.success).toBe(true);
     expect(listRes.body.data).toHaveLength(1);
     expect(listRes.body.data[0].completed).toBe(false);
+  });
+
+  test('uses medium as default priority', async () => {
+    const createRes = await request(app)
+      .post('/tasks')
+      .send({ title: 'Default priority task' })
+      .expect(201);
+
+    expect(createRes.body.success).toBe(true);
+    expect(createRes.body.data.priority).toBe('medium');
   });
 
   test('updates completion and title', async () => {
@@ -55,6 +66,23 @@ describe('Task API', () => {
       .expect(200);
 
     expect(renameRes.body.data.title).toBe('Updated title');
+
+    const priorityRes = await request(app)
+      .patch(`/tasks/${taskId}`)
+      .send({ priority: 'low' })
+      .expect(200);
+
+    expect(priorityRes.body.data.priority).toBe('low');
+  });
+
+  test('rejects invalid priority value', async () => {
+    const res = await request(app)
+      .post('/tasks')
+      .send({ title: 'Bad priority', priority: 'urgent' })
+      .expect(400);
+
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toBe('priority must be low, medium, or high.');
   });
 
   test('rejects invalid task id', async () => {
@@ -80,7 +108,7 @@ describe('Task API', () => {
       .expect(400);
 
     expect(res.body.success).toBe(false);
-    expect(res.body.error).toBe('Provide completed and/or title.');
+    expect(res.body.error).toBe('Provide completed, title, or priority.');
   });
 
   test('returns JSON for malformed body', async () => {
