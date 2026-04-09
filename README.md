@@ -4,24 +4,26 @@ A minimal full-stack task manager built with React (Vite) + Node.js/Express.
 
 ## Setup
 
-### Option A — Run both together (recommended)
+### Option A - Run both together (recommended)
 
 ```bash
-cd task-manager
-npm install          # installs concurrently
-npm run dev          # starts backend on :3001 and frontend on :5173
+cd GlobalTrends
+npm install
+npm --prefix backend install
+npm --prefix frontend install
+npm run dev
 ```
 
-### Option B — Run separately
+### Option B - Run separately
 
 ```bash
-# Terminal 1 — backend
-cd task-manager/backend
+# Terminal 1 - backend
+cd GlobalTrends/backend
 npm install
-node index.js
+npm start
 
-# Terminal 2 — frontend
-cd task-manager/frontend
+# Terminal 2 - frontend
+cd GlobalTrends/frontend
 npm install
 npm run dev
 ```
@@ -30,24 +32,51 @@ Open [http://localhost:5173](http://localhost:5173)
 
 ## Features
 
-- Add, complete, delete tasks
-- Filter by All / Active / Completed
-- Double-click a task title to edit it inline (Esc or click away to cancel)
+- Add, complete, and delete tasks
+- Filter by all, active (incomplete), or completed status
+- Edit an existing task title inline
+- Persist tasks after refresh/server restart (file-backed store)
 
 ## API
 
-| Method | Path          | Body                        | Description        |
-|--------|---------------|-----------------------------|--------------------|
-| GET    | /tasks        | —                           | List all tasks     |
-| POST   | /tasks        | `{ title: string }`        | Create task        |
-| PATCH  | /tasks/:id    | `{ completed?, title? }`   | Update task        |
-| DELETE | /tasks/:id    | —                           | Delete task        |
+| Method | Path        | Body                      | Description    |
+|--------|-------------|---------------------------|----------------|
+| GET    | /tasks      | -                         | List all tasks |
+| POST   | /tasks      | `{ title: string }`       | Create task    |
+| PATCH  | /tasks/:id  | `{ completed?, title? }`  | Update task    |
+| DELETE | /tasks/:id  | -                         | Delete task    |
 
 All responses: `{ success: boolean, data | error }`
 
-## Assumptions & Trade-offs
+## Tests
 
-- **In-memory storage**: tasks reset on server restart — acceptable per assignment brief
-- **No auth**: out of scope for this assignment
-- **No database**: `store.js` exports a plain array; swap with DB calls if needed
-- **Tested on Node 18+**
+```bash
+cd GlobalTrends
+npm test
+```
+
+This runs basic backend API tests (create/list/update and persistence reload behavior).
+
+## Docker
+
+```bash
+cd GlobalTrends
+docker compose up --build
+```
+
+Open [http://localhost:5173](http://localhost:5173)
+
+Stop containers:
+
+```bash
+docker compose down
+```
+
+The backend data is persisted using a Docker volume (`backend_data`).
+
+## Notes
+
+- No authentication (out of scope)
+- Store location defaults to `backend/tasks.json` locally
+- Store location in Docker is `/app/data/tasks.json`
+- Tested on Node 18+

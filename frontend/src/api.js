@@ -1,4 +1,6 @@
-const BASE_URL = 'http://localhost:3001/tasks';
+const rawApiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = rawApiBase.replace(/\/$/, '');
+const TASKS_URL = `${API_BASE_URL}/tasks`;
 
 async function handleResponse(res) {
   const json = await res.json();
@@ -7,12 +9,12 @@ async function handleResponse(res) {
 }
 
 export async function getTasks() {
-  const res = await fetch(BASE_URL);
+  const res = await fetch(TASKS_URL);
   return handleResponse(res);
 }
 
 export async function createTask(title) {
-  const res = await fetch(BASE_URL, {
+  const res = await fetch(TASKS_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title }),
@@ -21,7 +23,7 @@ export async function createTask(title) {
 }
 
 export async function updateTask(id, completed) {
-  const res = await fetch(`${BASE_URL}/${id}`, {
+  const res = await fetch(`${TASKS_URL}/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ completed }),
@@ -29,7 +31,16 @@ export async function updateTask(id, completed) {
   return handleResponse(res);
 }
 
+export async function updateTaskTitle(id, title) {
+  const res = await fetch(`${TASKS_URL}/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title }),
+  });
+  return handleResponse(res);
+}
+
 export async function deleteTask(id) {
-  const res = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
+  const res = await fetch(`${TASKS_URL}/${id}`, { method: 'DELETE' });
   return handleResponse(res);
 }

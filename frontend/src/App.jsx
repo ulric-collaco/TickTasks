@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getTasks, createTask, updateTask, deleteTask } from './api'
+import { getTasks, createTask, updateTask, updateTaskTitle, deleteTask } from './api'
 import AddTaskForm from './components/AddTaskForm'
 import FilterBar from './components/FilterBar'
 import TaskList from './components/TaskList'
@@ -53,14 +53,8 @@ export default function App() {
 
   async function handleEdit(id, newTitle) {
     try {
-      const res = await fetch(`http://localhost:3001/tasks/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newTitle }),
-      })
-      const json = await res.json()
-      if (!res.ok || !json.success) throw new Error(json.error || 'Update failed')
-      setTasks((prev) => prev.map((t) => (t.id === id ? json.data : t)))
+      const updated = await updateTaskTitle(id, newTitle)
+      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
     } catch (err) {
       setError(err.message)
     }
